@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "wxbot": {
+      "command": "python",
+      "args": ["I:\\jz-wxbot-automation\\mcp_server.py"],
+      "env": {
+        "PYTHONPATH": "I:\\jz-wxbot-automation"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "wxbot_get_status",
+        "wxbot_get_contacts"
+      ]
+    }
+  },
+  
+  "tools": {
+    "wxbot_send_message": {
+      "description": "发送微信消息",
+      "requiresConfirmation": true,
+      "confirmationMessage": "确认发送微信消息到 {chat_name}？"
+    },
+    "wxbot_mass_send": {
+      "description": "群发微信消息",
+      "requiresConfirmation": true,
+      "confirmationMessage": "确认群发消息给 {total} 个目标？"
+    },
+    "wxbot_add_friend": {
+      "description": "添加微信好友",
+      "requiresConfirmation": true,
+      "confirmationMessage": "确认添加好友？"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+# jz-wxbot-automation 主配置
+# 版本: 2.0
+
+# 微信配置
+wechat:
+  personal:
+    enabled: true
+    process_names:
+      - "WeChat.exe"
+      - "Weixin.exe"
+    auto_reconnect: true
+    reconnect_interval: 5
+  
+  work:
+    enabled: true
+    process_names:
+      - "WXWork.exe"
+    auto_reconnect: true
+
+# 人性化操作配置
+human_like:
+  enabled: true
+  random_delay: true      # 随机延迟
+  curve_movement: true    # 曲线移动
+  reading_pause: true     # 阅读停顿
+  small_moves: true       # 小幅移动
+
+# 桥接服务配置
+bridge:
+  host: "127.0.0.1"
+  port: 8080
+  debug: false
+
+# OpenClaw 集成配置
+openclaw:
+  # Gateway 连接
+  gateway_url: "ws://127.0.0.1:3100"
+  agent_id: "wxbot-agent"
+  
+  # 消息处理
+  message:
+    # 私聊配置
+    private_chat:
+      enabled: true
+      auto_reply: true
+    
+    # 群聊配置
+    group_chat:
+      enabled: true
+      mention_only: true  # 仅在被@时回复
+      prefix: ""          # 触发前缀（可选）
+
+# 日志配置
+logging:
+  level: "INFO"
+  file: "logs/wxbot.log"
+  max_size: "10MB"
+  backup_count: 5

@@ -1,4 +1,19 @@
+# jz-wxbot-automation 依赖
+# 核心依赖
 pyautogui>=0.9.54
 pyperclip>=1.8.2
 pywin32>=306
 psutil>=5.9.0
+
+# OpenClaw 集成
+websockets>=11.0
+
+# 配置文件支持
+PyYAML>=6.0
+
+# 异步支持
+aiohttp>=3.8.0
+
+# 可选依赖
+# opencv-python>=4.8.0  # 图像识别
+# pillow>=10.0.0        # 图像处理
