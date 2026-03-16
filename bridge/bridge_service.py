@@ -12,14 +12,21 @@ import time
 from typing import Callable, Dict, Any, Optional, List
 from datetime import datetime
 
-from openclaw_client import (
-    OpenClawClient, 
-    WeChatMessage, 
-    OpenClawResponse,
-    ChatType,
-    MessageType,
-    get_openclaw_client
-)
+try:
+    from openclaw_client import (
+        OpenClawClient, 
+        WeChatMessage, 
+        OpenClawResponse,
+        ChatType,
+        MessageType,
+        get_openclaw_client
+    )
+except ImportError:
+    # 如果openclaw_client不存在，使用模拟实现
+    from core.message_reader_interface import WeChatMessage, MessageType, ChatType
+    OpenClawClient = None
+    OpenClawResponse = None
+    get_openclaw_client = None
 
 # 导入现有的发送器
 import sys
