@@ -10,7 +10,7 @@ import time
 from unittest.mock import Mock, patch, MagicMock
 
 # 添加项目根目录到路径
-sys.path.insert(0, '..')
+sys.path.insert(0, 'I:\\jz-wxbot-automation')
 
 
 class TestHumanLikeOperations:

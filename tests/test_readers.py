@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
 # 添加项目根目录到路径
-sys.path.insert(0, '..')
+sys.path.insert(0, 'I:\\jz-wxbot-automation')
 
 from readers.wechat_reader import WeChatMessageReader
 from readers.wxwork_reader import WXWorkMessageReader

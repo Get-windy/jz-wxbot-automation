@@ -8,7 +8,7 @@ import pytest
 import sys
 
 # 添加项目根目录到路径
-sys.path.insert(0, '..')
+sys.path.insert(0, 'I:\\jz-wxbot-automation')
 
 
 class TestWeChatError:
