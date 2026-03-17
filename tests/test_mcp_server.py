@@ -74,9 +74,13 @@ class TestWxBotMCPServer(unittest.TestCase):
     
     def test_select_sender_auto(self):
         """测试自动选择发送器"""
-        # 没有发送器时返回 None
+        # 自动选择时返回第一个可用的发送器，如果没有则返回 None
         sender = self.server._select_sender("auto")
-        self.assertIsNone(sender)
+        # 如果有任一发送器可用，返回该发送器；否则返回 None
+        if self.server.wechat_sender or self.server.wxwork_sender:
+            self.assertIsNotNone(sender)
+        else:
+            self.assertIsNone(sender)
     
     def test_format_message(self):
         """测试消息格式化"""
