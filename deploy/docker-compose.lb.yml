@@ -1,0 +1,140 @@
+# jz-wxbot-automation - 负载均衡部署配置
+version: '3.8'
+
+services:
+  nginx-lb:
+    image: nginx:1.25-alpine
+    container_name: jz-wxbot-nginx-lb
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../config/nginx/nginx-cluster.conf:/etc/nginx/nginx.conf:ro
+      - ../config/nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - wxbot-1
+      - wxbot-2
+      - wxbot-3
+    networks:
+      - frontend
+      - backend
+
+  wxbot-1:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: jz-wxbot-1
+    restart: unless-stopped
+    environment:
+      - INSTANCE_ID=1
+      - PORT=8080
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../config:/app/config
+      - wxbot-data-1:/data
+      - wxbot-logs-1:/logs
+    networks:
+      - backend
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  wxbot-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: jz-wxbot-2
+    restart: unless-stopped
+    environment:
+      - INSTANCE_ID=2
+      - PORT=8080
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../config:/app/config
+      - wxbot-data-2:/data
+      - wxbot-logs-2:/logs
+    networks:
+      - backend
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  wxbot-3:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: jz-wxbot-3
+    restart: unless-stopped
+    environment:
+      - INSTANCE_ID=3
+      - PORT=8080
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../config:/app/config
+      - wxbot-data-3:/data
+      - wxbot-logs-3:/logs
+    networks:
+      - backend
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: jz-wxbot-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb
+    volumes:
+      - redis-data:/data
+    networks:
+      - redis
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: jz-wxbot-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: jz-wxbot-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - monitoring
+
+networks:
+  frontend:
+  backend:
+  redis:
+  monitoring:
+
+volumes:
+  wxbot-data-1:
+  wxbot-data-2:
+  wxbot-data-3:
+  wxbot-logs-1:
+  wxbot-logs-2:
+  wxbot-logs-3:
+  redis-data:
+  grafana-data:

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-03-24T01:44:26.477220",
+  "duration_seconds": 60.02735257148743,
+  "total_operations": 50048,
+  "successful_operations": 49786,
+  "failed_operations": 262,
+  "success_rate": 99.48,
+  "avg_cpu_percent": 1.52,
+  "max_cpu_percent": 9.3,
+  "avg_memory_mb": 18.72,
+  "max_memory_mb": 19.55,
+  "memory_leak_detected": false,
+  "error_count": 0,
+  "warning_count": 0
+}

@@ -1,0 +1,59 @@
+# jz-wxbot Prometheus 监控配置
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: 'jz-wxbot'
+    environment: 'production'
+
+# 告警规则文件
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Coordinator 服务
+  - job_name: 'coordinator'
+    static_configs:
+      - targets: ['coordinator:9000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Worker 服务（自动发现）
+  - job_name: 'wxbot-workers'
+    dns_sd_configs:
+      - names:
+          - wxbot-worker
+        type: 'A'
+        port: 9000
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Redis 监控
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # Nginx 监控
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+  # Node Exporter（主机监控）
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+# 远程写入（可选）
+# remote_write:
+#   - url: "http://remote-storage:9090/api/v1/write"
+
+# 远程读取（可选）
+# remote_read:
+#   - url: "http://remote-storage:9090/api/v1/read"

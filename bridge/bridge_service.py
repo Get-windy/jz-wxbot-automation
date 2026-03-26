@@ -407,6 +407,48 @@ class BridgeService:
             'stats': self.stats,
             'timestamp': datetime.now().isoformat()
         }
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """获取统计信息"""
+        return self.stats.copy()
+    
+    def register_message_handler(self, name: str, handler: Callable):
+        """注册消息处理器"""
+        self.message_handlers[name] = handler
+        logger.info(f"注册消息处理器: {name}")
+    
+    def register_command_handler(self, name: str, handler: Callable):
+        """注册命令处理器"""
+        self.command_handlers[name] = handler
+        logger.info(f"注册命令处理器: {name}")
+    
+    def _increment_received(self):
+        """增加消息接收计数"""
+        self.stats['messages_received'] += 1
+    
+    def _increment_sent(self):
+        """增加消息发送计数"""
+        self.stats['messages_sent'] += 1
+    
+    def _increment_commands(self):
+        """增加命令执行计数"""
+        self.stats['commands_executed'] += 1
+    
+    def _increment_errors(self):
+        """增加错误计数"""
+        self.stats['errors'] += 1
+    
+    def is_running(self) -> bool:
+        """检查服务是否运行中"""
+        return self.running
+    
+    def execute_command(self, name: str, args: Dict) -> Any:
+        """执行命令"""
+        handler = self.command_handlers.get(name)
+        if handler:
+            self.stats['commands_executed'] += 1
+            return handler(args)
+        return None
 
 
 # 单例

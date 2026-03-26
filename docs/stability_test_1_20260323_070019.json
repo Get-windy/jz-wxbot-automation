@@ -1,0 +1,40 @@
+{
+  "test_start": "2026-03-23T06:59:51.958911",
+  "test_end": "2026-03-23T07:00:19.015741",
+  "duration_hours": 0.007515765000000001,
+  "stability_score": 95,
+  "resource_usage": {
+    "duration_hours": 0.007549879722222222,
+    "sample_count": 1,
+    "cpu_avg": 15.7,
+    "cpu_max": 15.7,
+    "memory_avg": 38.890625,
+    "memory_max": 38.890625,
+    "thread_count": 9,
+    "open_files": 2
+  },
+  "exception_summary": {
+    "total_exceptions": 1,
+    "by_type": {
+      "Exception": 1
+    },
+    "recent": [
+      {
+        "timestamp": "2026-03-23T07:00:17.898898",
+        "type": "Exception",
+        "message": "发送失败: 发送失败",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 240, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 发送失败\n"
+      }
+    ]
+  },
+  "test_results": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "pass_rate": 4.0
+  },
+  "recommendations": [
+    "系统运行状态良好，继续保持"
+  ]
+}

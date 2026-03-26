@@ -1,0 +1,48 @@
+# jz-wxbot Docker部署
+
+## 快速启动
+
+```bash
+# 克隆项目
+git clone https://github.com/jz-wxbot/jz-wxbot.git
+cd jz-wxbot
+
+# 复制环境变量
+cp .env.example .env
+
+# 启动服务
+docker-compose up -d
+```
+
+## docker-compose.yml
+
+```yaml
+version: '3.8'
+
+services:
+  jz-wxbot:
+    image: jzwxbot/jz-wxbot:latest
+    ports:
+      - "9000:9000"
+    environment:
+      - DATABASE_URL=sqlite:///data/wxbot.db
+      - PLUGIN_DIR=/app/plugins
+    volumes:
+      - ./data:/app/data
+      - ./plugins:/app/plugins
+    restart: unless-stopped
+    privileged: true
+    restart: unless-stopped
+```
+
+## 插件目录结构
+
+```
+plugins/
+├── plugin1/
+│   ├── package.json
+│   └── index.js
+└── plugin2/
+    ├── package.json
+    └── index.js
+```

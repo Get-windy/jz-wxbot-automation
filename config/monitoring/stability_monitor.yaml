@@ -1,0 +1,325 @@
+# jz-wxbot 稳定性监控配置
+# 版本: v1.0.0
+# 更新时间: 2026-03-25
+
+# ============================================================
+# 微信控制稳定性监控
+# ============================================================
+wechat_control:
+  # 进程监控
+  process_monitor:
+    enabled: true
+    check_interval: 30  # 秒
+    processes:
+      - name: "WeChat.exe"
+        type: "personal"
+        critical: true
+      - name: "Weixin.exe"
+        type: "personal"
+        critical: true
+      - name: "WXWork.exe"
+        type: "work"
+        critical: true
+    actions:
+      on_not_found: "alert"  # alert, restart, shutdown
+      auto_restart: true
+      restart_delay: 5
+
+  # 窗口监控
+  window_monitor:
+    enabled: true
+    check_interval: 60
+    windows:
+      - title_pattern: "微信"
+        type: "personal"
+      - title_pattern: "企业微信"
+        type: "work"
+    actions:
+      on_not_responding: "alert"
+      response_timeout: 30
+
+  # UI元素监控
+  ui_element_monitor:
+    enabled: true
+    check_interval: 120
+    elements:
+      - name: "chat_list"
+        selector_type: "class"
+        selector_value: "WeChatMainWndForPC"
+        timeout: 10
+      - name: "message_input"
+        selector_type: "class"
+        selector_value: "EditWnd"
+        timeout: 5
+      - name: "send_button"
+        selector_type: "text"
+        selector_value: "发送"
+        timeout: 5
+
+# ============================================================
+# 消息收发监控
+# ============================================================
+message_monitor:
+  # 发送监控
+  send_monitor:
+    enabled: true
+    metrics:
+      - success_rate
+      - average_latency
+      - error_count
+    thresholds:
+      success_rate_min: 0.95  # 95%成功率
+      latency_max_ms: 5000    # 最大延迟5秒
+      error_count_max: 10     # 最大错误数
+    alert_channels:
+      - "log"
+      - "prometheus"
+
+  # 接收监控
+  receive_monitor:
+    enabled: true
+    metrics:
+      - message_count
+      - processing_time
+      - queue_size
+    thresholds:
+      queue_size_max: 100
+      processing_time_max_ms: 3000
+
+  # 消息队列监控
+  queue_monitor:
+    enabled: true
+    check_interval: 30
+    max_queue_size: 1000
+    stale_message_timeout: 300  # 5分钟
+    actions:
+      on_overflow: "drop_oldest"
+      on_stale: "retry"
+
+# ============================================================
+# 错误日志收集
+# ============================================================
+error_collection:
+  enabled: true
+  
+  # 日志轮转
+  log_rotation:
+    max_size_mb: 10
+    backup_count: 10
+    compress: true
+
+  # 错误级别配置
+  severity_levels:
+    - level: "low"
+      action: "log"
+    - level: "medium"
+      action: "log_and_alert"
+    - level: "high"
+      action: "alert_and_retry"
+    - level: "critical"
+      action: "alert_and_shutdown"
+
+  # 错误阈值
+  thresholds:
+    error_rate_max: 0.1  # 10%错误率
+    critical_count_max: 5
+    time_window_sec: 300
+
+  # 错误追踪
+  tracking:
+    enabled: true
+    max_tracked: 100
+    include_traceback: true
+    include_context: true
+
+# ============================================================
+# 健康检查
+# ============================================================
+health_check:
+  enabled: true
+  endpoint: "/health"
+  port: 8080
+  
+  checks:
+    - name: "wechat_process"
+      type: "process"
+      critical: true
+      interval: 30
+    - name: "bridge_service"
+      type: "service"
+      critical: true
+      interval: 60
+    - name: "message_queue"
+      type: "queue"
+      critical: false
+      interval: 30
+    - name: "memory_usage"
+      type: "resource"
+      critical: false
+      interval: 60
+      threshold_mb: 500
+    - name: "cpu_usage"
+      type: "resource"
+      critical: false
+      interval: 60
+      threshold_percent: 80
+
+  # 健康状态
+  status_levels:
+    - "healthy"
+    - "degraded"
+    - "unhealthy"
+
+# ============================================================
+# Prometheus 监控
+# ============================================================
+prometheus:
+  enabled: true
+  port: 9090
+  path: "/metrics"
+  
+  metrics:
+    # 自定义指标
+    custom:
+      - name: "wxbot_messages_sent_total"
+        type: "counter"
+        description: "Total messages sent"
+        labels: ["chat_type", "status"]
+      - name: "wxbot_messages_received_total"
+        type: "counter"
+        description: "Total messages received"
+        labels: ["chat_type"]
+      - name: "wxbot_send_latency_seconds"
+        type: "histogram"
+        description: "Message send latency"
+        buckets: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+      - name: "wxbot_errors_total"
+        type: "counter"
+        description: "Total errors"
+        labels: ["error_type", "severity"]
+      - name: "wxbot_process_status"
+        type: "gauge"
+        description: "Process status (1=running, 0=stopped)"
+        labels: ["process_name"]
+      - name: "wxbot_queue_size"
+        type: "gauge"
+        description: "Message queue size"
+      - name: "wxbot_memory_bytes"
+        type: "gauge"
+        description: "Memory usage in bytes"
+      - name: "wxbot_cpu_percent"
+        type: "gauge"
+        description: "CPU usage percentage"
+
+# ============================================================
+# 告警配置
+# ============================================================
+alerting:
+  enabled: true
+  
+  channels:
+    - type: "log"
+      enabled: true
+      min_severity: "medium"
+    - type: "prometheus"
+      enabled: true
+      min_severity: "low"
+    - type: "webhook"
+      enabled: false
+      url: ""
+      min_severity: "high"
+
+  rules:
+    - name: "wechat_not_running"
+      condition: "process_status == 0"
+      severity: "critical"
+      message: "微信进程未运行"
+      cooldown: 300
+
+    - name: "high_error_rate"
+      condition: "error_rate > 0.1"
+      severity: "high"
+      message: "错误率过高"
+      cooldown: 300
+
+    - name: "message_queue_full"
+      condition: "queue_size > 800"
+      severity: "medium"
+      message: "消息队列接近满载"
+      cooldown: 120
+
+    - name: "high_memory_usage"
+      condition: "memory_mb > 400"
+      severity: "medium"
+      message: "内存使用过高"
+      cooldown: 300
+
+    - name: "high_cpu_usage"
+      condition: "cpu_percent > 70"
+      severity: "medium"
+      message: "CPU使用过高"
+      cooldown: 300
+
+    - name: "send_latency_high"
+      condition: "send_latency_seconds > 5"
+      severity: "medium"
+      message: "消息发送延迟过高"
+      cooldown: 60
+
+# ============================================================
+# 自动恢复
+# ============================================================
+auto_recovery:
+  enabled: true
+  
+  recovery_actions:
+    - trigger: "wechat_not_running"
+      action: "restart_process"
+      max_attempts: 3
+      delay: 5
+    
+    - trigger: "high_memory_usage"
+      action: "clear_cache"
+      delay: 10
+    
+    - trigger: "message_queue_full"
+      action: "flush_queue"
+      delay: 0
+
+  # 重启策略
+  restart:
+    max_attempts: 5
+    backoff_factor: 2
+    initial_delay: 5
+    max_delay: 60
+
+# ============================================================
+# 报告配置
+# ============================================================
+reporting:
+  enabled: true
+  output_dir: "I:/jz-wxbot-automation/docs/reports"
+  
+  # 日报
+  daily:
+    enabled: true
+    time: "00:00"
+    include_metrics: true
+    include_errors: true
+    include_recommendations: true
+
+  # 周报
+  weekly:
+    enabled: true
+    day: "monday"
+    time: "08:00"
+    include_trends: true
+    include_comparison: true
+
+  # 月报
+  monthly:
+    enabled: true
+    day: 1
+    time: "08:00"
+    include_analysis: true
+    include_forecast: true

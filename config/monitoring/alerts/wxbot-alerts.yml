@@ -1,0 +1,177 @@
+# jz-wxbot 告警规则
+
+groups:
+  - name: jz-wxbot-workers
+    rules:
+      # Worker 实例告警
+      - alert: WorkerDown
+        expr: up{job="wxbot-workers"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: worker
+        annotations:
+          summary: "Worker 实例离线"
+          description: "Worker {{ $labels.instance }} 已离线超过 1 分钟"
+
+      - alert: NotEnoughWorkers
+        expr: count(up{job="wxbot-workers"} == 1) < 2
+        for: 2m
+        labels:
+          severity: critical
+          component: cluster
+        annotations:
+          summary: "Worker 实例不足"
+          description: "当前仅有 {{ $value }} 个 Worker 实例运行，建议至少 2 个"
+
+      - alert: WorkerHighCPU
+        expr: process_cpu_seconds_total{job="wxbot-workers"} > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: worker
+        annotations:
+          summary: "Worker CPU 使用率过高"
+          description: "Worker {{ $labels.instance }} CPU 使用率超过 80%"
+
+      - alert: WorkerHighMemory
+        expr: process_resident_memory_bytes{job="wxbot-workers"} / 1024 / 1024 / 1024 > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: worker
+        annotations:
+          summary: "Worker 内存使用过高"
+          description: "Worker {{ $labels.instance }} 内存使用超过 1GB"
+
+  - name: jz-wxbot-tasks
+    rules:
+      # 任务队列告警
+      - alert: TaskQueueBacklog
+        expr: wxbot_tasks_pending > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+        annotations:
+          summary: "任务队列积压"
+          description: "待处理任务数量 {{ $value }}，建议扩容 Worker"
+
+      - alert: TaskQueueCritical
+        expr: wxbot_tasks_pending > 500
+        for: 5m
+        labels:
+          severity: critical
+          component: queue
+        annotations:
+          summary: "任务队列严重积压"
+          description: "待处理任务数量 {{ $value }}，立即扩容 Worker"
+
+      - alert: HighTaskFailureRate
+        expr: rate(wxbot_tasks_failed_total[5m]) / rate(wxbot_tasks_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: tasks
+        annotations:
+          summary: "任务失败率过高"
+          description: "任务失败率 {{ $value | humanizePercentage }}，请检查日志"
+
+      - alert: HighTaskLatency
+        expr: histogram_quantile(0.95, rate(wxbot_task_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "任务处理延迟过高"
+          description: "P95 延迟 {{ $value }}秒，请检查性能"
+
+  - name: jz-wxbot-coordinator
+    rules:
+      # Coordinator 告警
+      - alert: CoordinatorDown
+        expr: up{job="coordinator"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: coordinator
+        annotations:
+          summary: "Coordinator 服务离线"
+          description: "Coordinator 已离线超过 1 分钟"
+
+      - alert: CoordinatorHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="coordinator"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: coordinator
+        annotations:
+          summary: "Coordinator 响应延迟过高"
+          description: "P95 响应时间 {{ $value }}秒"
+
+  - name: jz-wxbot-redis
+    rules:
+      # Redis 告警
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis 服务离线"
+          description: "Redis 已离线，任务队列不可用"
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis 内存使用过高"
+          description: "Redis 内存使用率 {{ $value | humanizePercentage }}"
+
+      - alert: RedisRejectedConnections
+        expr: increase(redis_rejected_connections_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis 连接被拒绝"
+          description: "Redis 拒绝了 {{ $value }} 个连接"
+
+  - name: jz-wxbot-wechat
+    rules:
+      # 微信自动化告警
+      - alert: WeChatConnectionLost
+        expr: wxbot_wechat_connected == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: wechat
+        annotations:
+          summary: "微信连接断开"
+          description: "Worker {{ $labels.instance }} 微信连接已断开"
+
+      - alert: MessageSendFailure
+        expr: rate(wxbot_message_send_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: wechat
+        annotations:
+          summary: "消息发送失败率过高"
+          description: "消息发送错误率 {{ $value }}/秒"
+
+      - alert: HumanLikeOperationFailed
+        expr: rate(wxbot_human_like_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: automation
+        annotations:
+          summary: "人性化操作失败"
+          description: "人性化操作出现错误，请检查 GUI 环境"

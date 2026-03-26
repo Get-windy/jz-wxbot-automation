@@ -1,0 +1,180 @@
+# ============================================
+# jz-wxbot 负载均衡部署配置
+# 注意：微信GUI自动化需要每个实例绑定独立的微信窗口
+# 用法: docker-compose -f docker-compose.yml -f docker-compose.lb.yml up -d
+# ============================================
+
+version: '3.8'
+
+services:
+  # ==================== API 负载均衡器 ====================
+  nginx-lb:
+    image: nginx:alpine
+    container_name: jzwxbot-lb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./config/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - coordinator
+    networks:
+      - jzwxbot-net
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==================== 任务协调器 ====================
+  coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jzwxbot-coordinator
+    expose:
+      - "9000"
+    environment:
+      - ROLE=coordinator
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=sqlite:///data/coordinator.db
+      - OPENCLAW_GATEWAY_URL=${OPENCLAW_GATEWAY_URL:-ws://host.docker.internal:3100}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - jzwxbot-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ==================== 微信机器人工作节点 ====================
+  # 每个worker需要独立的Windows桌面会话和微信实例
+  wxbot-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "9000"
+    environment:
+      - ROLE=worker
+      - WORKER_ID={{.Task.Name}}
+      - REDIS_URL=redis://redis:6379
+      - COORDINATOR_URL=http://coordinator:9000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - HUMAN_LIKE_ENABLED=${HUMAN_LIKE_ENABLED:-true}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./plugins:/app/plugins
+    depends_on:
+      coordinator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - jzwxbot-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    # 注意：GUI自动化需要在Windows主机上运行
+    # privileged: true
+
+  # ==================== Redis（任务队列+缓存）====================
+  redis:
+    image: redis:7-alpine
+    container_name: jzwxbot-redis
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - jzwxbot-net
+    restart: unless-stopped
+
+  # ==================== 监控服务（可选）====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: jzwxbot-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - jzwxbot-net
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: jzwxbot-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+    depends_on:
+      - prometheus
+    networks:
+      - jzwxbot-net
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+networks:
+  jzwxbot-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+volumes:
+  redis_data:
+  nginx_logs:
+  prometheus_data:
+  grafana_data:

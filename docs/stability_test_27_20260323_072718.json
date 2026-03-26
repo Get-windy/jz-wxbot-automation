@@ -1,0 +1,103 @@
+{
+  "test_start": "2026-03-23T07:00:47.968003",
+  "test_end": "2026-03-23T07:27:18.379916",
+  "duration_hours": 0.44178106694444447,
+  "stability_score": 70,
+  "resource_usage": {
+    "duration_hours": 0.44179990750000003,
+    "sample_count": 53,
+    "cpu_avg": 9.833962264150944,
+    "cpu_max": 21.4,
+    "memory_avg": 38.747199292452834,
+    "memory_max": 38.91796875,
+    "thread_count": 5,
+    "open_files": 2
+  },
+  "exception_summary": {
+    "total_exceptions": 27,
+    "by_type": {
+      "Exception": 27
+    },
+    "recent": [
+      {
+        "timestamp": "2026-03-23T07:18:06.983554",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:19:08.092254",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:20:09.274596",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:21:10.406850",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:22:11.516873",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:23:12.653559",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:24:13.790807",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:25:14.934276",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:26:16.078718",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:27:17.241107",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      }
+    ]
+  },
+  "test_results": {
+    "total": 108,
+    "passed": 108,
+    "failed": 0,
+    "pass_rate": 108.0
+  },
+  "recommendations": [
+    "异常次数较多，建议加强错误处理"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "test_start": "2026-03-23T07:00:47.968003",
+  "test_end": "2026-03-23T07:03:52.465452",
+  "duration_hours": 0.05124928027777778,
+  "stability_score": 80,
+  "resource_usage": {
+    "duration_hours": 0.05126811361111112,
+    "sample_count": 7,
+    "cpu_avg": 9.1,
+    "cpu_max": 21.4,
+    "memory_avg": 38.19419642857143,
+    "memory_max": 38.70703125,
+    "thread_count": 5,
+    "open_files": 2
+  },
+  "exception_summary": {
+    "total_exceptions": 4,
+    "by_type": {
+      "Exception": 4
+    },
+    "recent": [
+      {
+        "timestamp": "2026-03-23T07:00:47.971565",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:01:49.080448",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:02:50.198456",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      },
+      {
+        "timestamp": "2026-03-23T07:03:51.336549",
+        "type": "Exception",
+        "message": "发送失败: 没有可用的微信发送器",
+        "context": "消息发送测试",
+        "traceback": "Traceback (most recent call last):\n  File \"I:\\jz-wxbot-automation\\stability_test_72h.py\", line 258, in test_message_sending\n    raise Exception(f\"发送失败: {result.get('error')}\")\nException: 发送失败: 没有可用的微信发送器\n"
+      }
+    ]
+  },
+  "test_results": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "pass_rate": 16.0
+  },
+  "recommendations": [
+    "系统运行状态良好，继续保持"
+  ]
+}
